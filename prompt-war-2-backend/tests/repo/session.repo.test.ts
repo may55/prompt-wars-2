@@ -39,4 +39,28 @@ describe("InMemorySessionRepository", () => {
     expect(await repo.has("s1")).toBe(false);
     expect(await repo.has("s2")).toBe(false);
   });
+
+  it("should expire sessions after TTL duration", async () => {
+    const repo = new InMemorySessionRepository();
+    const sessionId = "sess-repo-expiry";
+    const sessionData: Session = {
+      id: sessionId,
+      query: "Mock Query",
+      history: [],
+    };
+
+    await repo.set(sessionId, sessionData);
+    expect(await repo.has(sessionId)).toBe(true);
+
+    const originalNow = Date.now;
+    // Simulate moving time forward by 3 hours (greater than 2-hour TTL)
+    Date.now = () => originalNow() + 3 * 60 * 60 * 1000;
+
+    try {
+      expect(await repo.has(sessionId)).toBe(false);
+      expect(await repo.get(sessionId)).toBeUndefined();
+    } finally {
+      Date.now = originalNow;
+    }
+  });
 });

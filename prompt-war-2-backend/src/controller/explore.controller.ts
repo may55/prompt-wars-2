@@ -12,9 +12,15 @@ export class ExploreController {
 
   async explore(c: Context) {
     try {
-      const { query } = await c.req.json();
+      let { query } = await c.req.json();
       if (!query || typeof query !== "string" || !query.trim()) {
         return c.json({ error: "Missing or invalid query parameter" }, 400);
+      }
+
+      // Sanitize input to strip out any HTML/XML tags
+      query = query.replace(/<\/?[^>]+(>|$)/g, "").trim();
+      if (!query) {
+        return c.json({ error: "Invalid or empty query after sanitization" }, 400);
       }
 
       const systemPrompt = `You are an expert cultural guide specializing in Indian travel, heritage, and history. \n` +

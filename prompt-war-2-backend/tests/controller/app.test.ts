@@ -175,4 +175,67 @@ describe("Wayfinder Endpoint Controllers", () => {
       expect(stored?.history[4]).toEqual({ role: "assistant", content: "Sure, the Red Fort is in Old Delhi." });
     });
   });
+
+  describe("Security and Rate Limiting", () => {
+    it("should sanitize query input by stripping HTML tags", async () => {
+      const mockOpenAI = new MockOpenAIService();
+      const repo = new InMemorySessionRepository();
+      const service = new SessionService(repo);
+      const exploreCtrl = new ExploreController(mockOpenAI, service);
+      const chatCtrl = new ChatController(mockOpenAI, service);
+      const app = createApp(exploreCtrl, chatCtrl);
+
+      mockOpenAI.mockResponse = JSON.stringify({
+        destination: "Jaipur, Rajasthan",
+        attractionsTitle: "Amber Fort",
+        attractionsDesc: "Amber Fort desc.",
+        gemTitle: "Kund",
+        gemDesc: "Kund desc.",
+        story: "Story desc.",
+        eventTitle: "Fest",
+        eventDesc: "Fest desc.",
+      });
+
+      const response = await app.request(exploreUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ query: "<script>alert('hack')</script>Jaipur<b>" }),
+      });
+
+      expect(response.status).toBe(200);
+      expect(mockOpenAI.lastMessagesPassed[1].content).toBe('Explore destination or interest query: "alert(\'hack\')Jaipur"');
+    });
+
+    it("should rate limit requests when exceeding the limit", async () => {
+      const mockOpenAI = new MockOpenAIService();
+      const repo = new InMemorySessionRepository();
+      const service = new SessionService(repo);
+      const exploreCtrl = new ExploreController(mockOpenAI, service);
+      const chatCtrl = new ChatController(mockOpenAI, service);
+      
+      const { Hono } = require("hono");
+      const { rateLimiter, rateLimitMap } = require("../../src/app");
+      
+      // Clear the map to ensure test isolation
+      rateLimitMap.clear();
+
+      const customApp = new Hono();
+      customApp.use("/api/*", rateLimiter(2, 60 * 1000));
+      customApp.post("/api/explore", (c: any) => c.json({ ok: true }));
+
+      // Request 1
+      let res = await customApp.request(exploreUrl, { method: "POST" });
+      expect(res.status).toBe(200);
+
+      // Request 2
+      res = await customApp.request(exploreUrl, { method: "POST" });
+      expect(res.status).toBe(200);
+
+      // Request 3 -> Rate Limit Hit
+      res = await customApp.request(exploreUrl, { method: "POST" });
+      expect(res.status).toBe(429);
+      const json = await res.json();
+      expect(json.error).toBe("Too many requests. Please try again later.");
+    });
+  });
 });

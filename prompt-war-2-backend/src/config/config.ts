@@ -9,6 +9,7 @@ export interface Config {
   apiKey: string;
   deploymentName: string;
   apiVersion: string;
+  corsOrigin: string;
 }
 
 /**
@@ -29,5 +30,6 @@ export function getEnvConfig(env: Record<string, string | undefined> = process.e
     apiKey,
     deploymentName: env.DEPLOYMENT_NAME || "gpt-4o",
     apiVersion: env.API_VERSION || "2024-08-01-preview",
+    corsOrigin: env.CORS_ORIGIN || "*",
   };
 }

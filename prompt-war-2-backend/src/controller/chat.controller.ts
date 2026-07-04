@@ -10,12 +10,18 @@ export class ChatController {
 
   async chat(c: Context) {
     try {
-      const { sessionId, message } = await c.req.json();
+      let { sessionId, message } = await c.req.json();
       if (!sessionId || typeof sessionId !== "string") {
         return c.json({ error: "Missing or invalid sessionId" }, 400);
       }
       if (!message || typeof message !== "string" || !message.trim()) {
         return c.json({ error: "Missing or invalid message" }, 400);
+      }
+
+      // Sanitize input to strip out any HTML/XML tags
+      message = message.replace(/<\/?[^>]+(>|$)/g, "").trim();
+      if (!message) {
+        return c.json({ error: "Invalid or empty message after sanitization" }, 400);
       }
 
       const session = await this.sessionService.getSession(sessionId);

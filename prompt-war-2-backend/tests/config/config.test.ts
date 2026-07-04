@@ -9,6 +9,7 @@ describe("Configuration Loader", () => {
       PORT: "4000",
       DEPLOYMENT_NAME: "mock-deployment",
       API_VERSION: "mock-version",
+      CORS_ORIGIN: "https://my-domain.com",
     };
 
     const config = getEnvConfig(mockEnv);
@@ -18,6 +19,7 @@ describe("Configuration Loader", () => {
     expect(config.apiKey).toBe("mock-key");
     expect(config.deploymentName).toBe("mock-deployment");
     expect(config.apiVersion).toBe("mock-version");
+    expect(config.corsOrigin).toBe("https://my-domain.com");
   });
 
   it("should fallback to defaults when optional parameters are missing", () => {
@@ -31,6 +33,7 @@ describe("Configuration Loader", () => {
     expect(config.port).toBe(3000);
     expect(config.deploymentName).toBe("gpt-4o");
     expect(config.apiVersion).toBe("2024-08-01-preview");
+    expect(config.corsOrigin).toBe("*");
   });
 
   it("should throw an error if AOAI_ENDPOINT is missing", () => {

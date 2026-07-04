@@ -31,7 +31,7 @@ const exploreController = new ExploreController(openAIService, sessionService);
 const chatController = new ChatController(openAIService, sessionService);
 
 // 4. Create App
-const app = createApp(exploreController, chatController);
+const app = createApp(exploreController, chatController, config.corsOrigin);
 
 console.log(`Starting Wayfinder Backend on port ${config.port}...`);
 
