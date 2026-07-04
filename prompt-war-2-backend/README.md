@@ -4,7 +4,10 @@ This is the GenAI-powered backend service for the Wayfinder travel exploration p
 
 ## Features
 
-- **CORS Support**: Configured to work seamlessly with the Vite frontend.
+- **CORS Support**: Configured to work dynamically using environment-defined origins (`CORS_ORIGIN`).
+- **Rate Limiting**: Built-in in-memory rate limiter middleware to protect endpoints against request spam.
+- **Input Sanitization**: Client parameters are sanitised by stripping HTML/XML tags to protect against script/prompt injection.
+- **Sliding Session Cache (TTL)**: Stores session histories with a 2-hour sliding TTL, including automated background cleaning to prevent memory leaks.
 - **AI-Powered Search & Discovery (`/api/explore`)**: Returns structured data containing destination, attractions, hidden gems, stories, and local event recommendations.
 - **Contextual Conversational Sessions (`/api/chat`)**: Allows users to chat interactively with a virtual local guide assistant seeded with the discovery history context.
 
