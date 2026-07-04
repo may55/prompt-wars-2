@@ -2,7 +2,10 @@ import { ISessionRepository } from "../repo/session.repo";
 import { Session } from "../model/session.model";
 
 export class SessionService {
-  constructor(private repo: ISessionRepository) {}
+  constructor(
+    private repo: ISessionRepository,
+    private chatPromptTemplate: string
+  ) {}
 
   async getSession(id: string): Promise<Session | undefined> {
     return this.repo.get(id);
@@ -20,22 +23,23 @@ export class SessionService {
     eventTitle: string,
     eventDesc: string
   ): Promise<Session> {
+    const systemPromptContent = this.chatPromptTemplate
+      .replaceAll("{{destination}}", destination)
+      .replaceAll("{{attractionsTitle}}", attractionsTitle)
+      .replaceAll("{{attractionsDesc}}", attractionsDesc)
+      .replaceAll("{{gemTitle}}", gemTitle)
+      .replaceAll("{{gemDesc}}", gemDesc)
+      .replaceAll("{{story}}", story)
+      .replaceAll("{{eventTitle}}", eventTitle)
+      .replaceAll("{{eventDesc}}", eventDesc);
+
     const session: Session = {
       id,
       query,
       history: [
         {
           role: "system",
-          content: `You are 'Wayfinder AI', an enthusiastic, knowledgeable local guide for Indian cultural travel. \n` +
-            `Your goal is to answer the user's questions about destinations, food, local customs, events, and folklore.\n` +
-            `Be polite, immersive in your storytelling, and help the user connect deeply with local culture.\n` +
-            `Keep responses engaging but concise. Avoid generic tourist traps; recommend authentic, respectful, and sustainable cultural engagement.\n` +
-            `The user is currently asking about "${destination}". Below is the overview you generated:\n` +
-            `- Attractions: ${attractionsTitle} - ${attractionsDesc}\n` +
-            `- Hidden Gem: ${gemTitle} - ${gemDesc}\n` +
-            `- Story: ${story}\n` +
-            `- Event: ${eventTitle} - ${eventDesc}\n` +
-            `Please use this context to answer follow-up questions from the user.`
+          content: systemPromptContent
         },
         { role: "user", content: `Tell me about: ${query}` },
         {

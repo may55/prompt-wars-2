@@ -5,7 +5,12 @@ import { SessionService } from "../../src/service/session.service";
 describe("SessionService Workflow", () => {
   it("should create and manage sessions via the session repository", async () => {
     const repo = new InMemorySessionRepository();
-    const service = new SessionService(repo);
+    const mockTemplate = "You are local guide for {{destination}}.\n" +
+      "- Attractions: {{attractionsTitle}} - {{attractionsDesc}}\n" +
+      "- Hidden Gem: {{gemTitle}} - {{gemDesc}}\n" +
+      "- Story: {{story}}\n" +
+      "- Event: {{eventTitle}} - {{eventDesc}}";
+    const service = new SessionService(repo, mockTemplate);
     const sessionId = "session-id-456";
 
     // Create session
@@ -43,7 +48,7 @@ describe("SessionService Workflow", () => {
 
   it("should throw error if session does not exist when adding messages", async () => {
     const repo = new InMemorySessionRepository();
-    const service = new SessionService(repo);
+    const service = new SessionService(repo, "mock-template");
 
     expect(service.addMessageToSession("non-existent", "user", "hi")).rejects.toThrow(
       "Active session not found or session has expired"

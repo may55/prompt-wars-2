@@ -7,7 +7,8 @@ import { ChatMessage } from "../model/session.model";
 export class ExploreController {
   constructor(
     private openAIService: IOpenAIService,
-    private sessionService: SessionService
+    private sessionService: SessionService,
+    private systemPrompt: string
   ) {}
 
   async explore(c: Context) {
@@ -23,21 +24,8 @@ export class ExploreController {
         return c.json({ error: "Invalid or empty query after sanitization" }, 400);
       }
 
-      const systemPrompt = `You are an expert cultural guide specializing in Indian travel, heritage, and history. \n` +
-        `Analyze the user's destination or interest query. Return a JSON object with exactly the following keys:\n` +
-        `- "destination": The formatted name of the city/region and state (e.g., "Hampi, Karnataka").\n` +
-        `- "attractionsTitle": A catchy title for the primary attractions/hotspots.\n` +
-        `- "attractionsDesc": A detailed 3-4 sentence guide to the main attractions focusing on cultural significance.\n` +
-        `- "gemTitle": A title for an off-the-beaten-path hidden gem (a quiet monument, local artisan community, or traditional food joint).\n` +
-        `- "gemDesc": A compelling description of the hidden gem and how to experience it authentically.\n` +
-        `- "story": An immersive, storytelling narrative about the history, a local legend, folklore, or heritage of this place. Make it feel alive and narrative-rich.\n` +
-        `- "eventTitle": Title of a major local festival, cultural event, workshop, or local craft experience.\n` +
-        `- "eventDesc": Description of the event/experience, highlighting how a traveler can participate.\n` +
-        `\n` +
-        `Ensure all text is creative, high-quality, and addresses the goal of deep cultural connection. Return ONLY valid JSON.`;
-
       const messages: ChatMessage[] = [
-        { role: "system", content: systemPrompt },
+        { role: "system", content: this.systemPrompt },
         { role: "user", content: `Explore destination or interest query: "${query}"` },
       ];
 

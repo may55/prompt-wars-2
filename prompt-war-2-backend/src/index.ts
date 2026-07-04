@@ -2,6 +2,7 @@ import { getEnvConfig } from "./config/config";
 import { InMemorySessionRepository } from "./repo/session.repo";
 import { OpenAIService } from "./service/openai.service";
 import { SessionService } from "./service/session.service";
+import { PromptService } from "./service/prompt.service";
 import { ExploreController } from "./controller/explore.controller";
 import { ChatController } from "./controller/chat.controller";
 import { createApp } from "./app";
@@ -24,10 +25,15 @@ const openAIService = new OpenAIService(
   config.apiVersion,
   config.deploymentName
 );
-const sessionService = new SessionService(sessionRepository);
+
+const promptService = new PromptService();
+const explorePrompt = promptService.getPrompt("explore_system.md");
+const chatPrompt = promptService.getPrompt("chat_system.md");
+
+const sessionService = new SessionService(sessionRepository, chatPrompt);
 
 // 3. Instantiate Controllers
-const exploreController = new ExploreController(openAIService, sessionService);
+const exploreController = new ExploreController(openAIService, sessionService, explorePrompt);
 const chatController = new ChatController(openAIService, sessionService);
 
 // 4. Create App

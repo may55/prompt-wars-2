@@ -25,11 +25,14 @@ describe("Wayfinder Endpoint Controllers", () => {
   const exploreUrl = "http://localhost/api/explore";
   const chatUrl = "http://localhost/api/chat";
 
+  const mockExplorePrompt = "Mock explore prompt";
+  const mockChatPrompt = "Mock chat prompt: {{destination}}, {{attractionsTitle}} - {{attractionsDesc}}, {{gemTitle}} - {{gemDesc}}, {{story}}, {{eventTitle}} - {{eventDesc}}";
+
   it("should return healthy on GET /health", async () => {
     const mockOpenAI = new MockOpenAIService();
     const repo = new InMemorySessionRepository();
-    const service = new SessionService(repo);
-    const exploreCtrl = new ExploreController(mockOpenAI, service);
+    const service = new SessionService(repo, mockChatPrompt);
+    const exploreCtrl = new ExploreController(mockOpenAI, service, mockExplorePrompt);
     const chatCtrl = new ChatController(mockOpenAI, service);
     const app = createApp(exploreCtrl, chatCtrl);
 
@@ -45,8 +48,8 @@ describe("Wayfinder Endpoint Controllers", () => {
     it("should return 400 on empty query", async () => {
       const mockOpenAI = new MockOpenAIService();
       const repo = new InMemorySessionRepository();
-      const service = new SessionService(repo);
-      const exploreCtrl = new ExploreController(mockOpenAI, service);
+      const service = new SessionService(repo, mockChatPrompt);
+      const exploreCtrl = new ExploreController(mockOpenAI, service, mockExplorePrompt);
       const chatCtrl = new ChatController(mockOpenAI, service);
       const app = createApp(exploreCtrl, chatCtrl);
 
@@ -64,8 +67,8 @@ describe("Wayfinder Endpoint Controllers", () => {
     it("should parse prompt and create a session for valid query", async () => {
       const mockOpenAI = new MockOpenAIService();
       const repo = new InMemorySessionRepository();
-      const service = new SessionService(repo);
-      const exploreCtrl = new ExploreController(mockOpenAI, service);
+      const service = new SessionService(repo, mockChatPrompt);
+      const exploreCtrl = new ExploreController(mockOpenAI, service, mockExplorePrompt);
       const chatCtrl = new ChatController(mockOpenAI, service);
       const app = createApp(exploreCtrl, chatCtrl);
 
@@ -101,8 +104,8 @@ describe("Wayfinder Endpoint Controllers", () => {
     it("should return 400 for malformed parameters", async () => {
       const mockOpenAI = new MockOpenAIService();
       const repo = new InMemorySessionRepository();
-      const service = new SessionService(repo);
-      const exploreCtrl = new ExploreController(mockOpenAI, service);
+      const service = new SessionService(repo, mockChatPrompt);
+      const exploreCtrl = new ExploreController(mockOpenAI, service, mockExplorePrompt);
       const chatCtrl = new ChatController(mockOpenAI, service);
       const app = createApp(exploreCtrl, chatCtrl);
 
@@ -124,8 +127,8 @@ describe("Wayfinder Endpoint Controllers", () => {
     it("should return 404 for unknown session ID", async () => {
       const mockOpenAI = new MockOpenAIService();
       const repo = new InMemorySessionRepository();
-      const service = new SessionService(repo);
-      const exploreCtrl = new ExploreController(mockOpenAI, service);
+      const service = new SessionService(repo, mockChatPrompt);
+      const exploreCtrl = new ExploreController(mockOpenAI, service, mockExplorePrompt);
       const chatCtrl = new ChatController(mockOpenAI, service);
       const app = createApp(exploreCtrl, chatCtrl);
 
@@ -141,8 +144,8 @@ describe("Wayfinder Endpoint Controllers", () => {
     it("should chat successfully and persist history", async () => {
       const mockOpenAI = new MockOpenAIService();
       const repo = new InMemorySessionRepository();
-      const service = new SessionService(repo);
-      const exploreCtrl = new ExploreController(mockOpenAI, service);
+      const service = new SessionService(repo, mockChatPrompt);
+      const exploreCtrl = new ExploreController(mockOpenAI, service, mockExplorePrompt);
       const chatCtrl = new ChatController(mockOpenAI, service);
       const app = createApp(exploreCtrl, chatCtrl);
 
@@ -180,8 +183,8 @@ describe("Wayfinder Endpoint Controllers", () => {
     it("should sanitize query input by stripping HTML tags", async () => {
       const mockOpenAI = new MockOpenAIService();
       const repo = new InMemorySessionRepository();
-      const service = new SessionService(repo);
-      const exploreCtrl = new ExploreController(mockOpenAI, service);
+      const service = new SessionService(repo, mockChatPrompt);
+      const exploreCtrl = new ExploreController(mockOpenAI, service, mockExplorePrompt);
       const chatCtrl = new ChatController(mockOpenAI, service);
       const app = createApp(exploreCtrl, chatCtrl);
 
@@ -209,8 +212,8 @@ describe("Wayfinder Endpoint Controllers", () => {
     it("should rate limit requests when exceeding the limit", async () => {
       const mockOpenAI = new MockOpenAIService();
       const repo = new InMemorySessionRepository();
-      const service = new SessionService(repo);
-      const exploreCtrl = new ExploreController(mockOpenAI, service);
+      const service = new SessionService(repo, mockChatPrompt);
+      const exploreCtrl = new ExploreController(mockOpenAI, service, mockExplorePrompt);
       const chatCtrl = new ChatController(mockOpenAI, service);
       
       const { Hono } = require("hono");
