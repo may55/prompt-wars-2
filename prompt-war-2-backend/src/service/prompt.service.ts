@@ -6,10 +6,34 @@ export class PromptService {
   private promptsDir: string;
 
   constructor(promptsDir?: string) {
-    // Default to the project root 'prompts' directory.
-    // In ESM/Bun, import.meta.dir represents the directory of the current module (src/service or dist/service).
-    // Resolving '../../prompts' from here correctly points to the root prompts folder.
-    this.promptsDir = promptsDir || path.resolve(import.meta.dir, "../../prompts");
+    if (promptsDir) {
+      this.promptsDir = promptsDir;
+      return;
+    }
+
+    // 1. Try relative to process.cwd() (works if started from prompt-war-2-backend root)
+    const cwdPrompts = path.resolve(process.cwd(), "prompts");
+    if (fs.existsSync(cwdPrompts)) {
+      this.promptsDir = cwdPrompts;
+      return;
+    }
+
+    // 2. Try relative to import.meta.dir for bundled distribution (dist/index.js -> dist/../prompts)
+    const relativeToMeta1 = path.resolve(import.meta.dir, "../prompts");
+    if (fs.existsSync(relativeToMeta1)) {
+      this.promptsDir = relativeToMeta1;
+      return;
+    }
+
+    // 3. Try relative to import.meta.dir for dev source file (src/service/prompt.service.ts -> src/service/../../prompts)
+    const relativeToMeta2 = path.resolve(import.meta.dir, "../../prompts");
+    if (fs.existsSync(relativeToMeta2)) {
+      this.promptsDir = relativeToMeta2;
+      return;
+    }
+
+    // Fallback to the default path resolver
+    this.promptsDir = cwdPrompts;
   }
 
   /**
