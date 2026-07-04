@@ -1,0 +1,23 @@
+{
+  "name": "prompt-war-2-backend",
+  "version": "1.0.0",
+  "description": "Backend for Wayfinder travel discovery application",
+  "main": "src/index.ts",
+  "type": "module",
+  "scripts": {
+    "dev": "bun --watch src/index.ts",
+    "start": "bun src/index.ts",
+    "build": "tsc"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "hono": "^4.6.1",
+    "openai": "^4.52.0",
+    "uuid": "^10.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.9",
+    "@types/uuid": "^10.0.0",
+    "typescript": "^5.5.2"
+  }
+}
