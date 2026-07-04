@@ -194,7 +194,8 @@ if [ -f "$NGINX_TEMPLATE" ]; then
     LOCAL_NGINX_CONF="/tmp/prompt-wars-nginx.conf"
     cp "$NGINX_TEMPLATE" "$LOCAL_NGINX_CONF"
     
-    sed -i.bak "s/__VM_HOST__/$VM_HOST/g" "$LOCAL_NGINX_CONF"
+    SERVER_NAME=${DOMAIN_NAME:-$VM_HOST}
+    sed -i.bak "s/__VM_HOST__/$SERVER_NAME/g" "$LOCAL_NGINX_CONF"
     sed -i.bak "s/__BACKEND_PORT__/$BACKEND_PORT/g" "$LOCAL_NGINX_CONF"
     sed -i.bak "s/__FRONTEND_PORT__/$FRONTEND_PORT/g" "$LOCAL_NGINX_CONF"
     rm -f "${LOCAL_NGINX_CONF}.bak"
@@ -218,5 +219,5 @@ echo -e "\n${BLUE}==================================================${NC}"
 echo -e "${GREEN}            DEPLOYMENT COMPLETE SUCCESS!           ${NC}"
 echo -e "Backend is running on port:  ${BLUE}$BACKEND_PORT${NC}"
 echo -e "Frontend is running on port: ${BLUE}$FRONTEND_PORT${NC}"
-echo -e "You can access your website at: ${GREEN}http://$VM_HOST/${NC}"
+echo -e "You can access your website at: ${GREEN}http://${DOMAIN_NAME:-$VM_HOST}/${NC}"
 echo -e "${BLUE}==================================================${NC}"
